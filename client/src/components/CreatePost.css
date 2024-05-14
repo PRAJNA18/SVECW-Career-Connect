@@ -29,3 +29,8 @@
     cursor: pointer;
   }
   
+  .title {
+    display: flex;
+    justify-content: space-around;
+  }
+  
