@@ -15,6 +15,7 @@ const Home = ({ blogs }) => {
           <li key={blog._id} className={`blog-item`}>
             <Link to={`/blog/${blog._id}`}>
               <h3>{blog.title || 'Untitled'}</h3>
+              <h4>{blog.createdAt}</h4>
             </Link>
             <p>{blog.summary}</p>
           </li>

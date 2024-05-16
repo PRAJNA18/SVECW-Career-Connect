@@ -6,7 +6,6 @@ require('dotenv').config();
 
 const app = express();
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
   console.log('Connected to MongoDB');
@@ -25,7 +24,6 @@ const postRoutes = require('./routes/posts');
 app.use('/api/auth', userRoutes);
 app.use('/api/posts', postRoutes);
 
-// Route to fetch all blogs
 app.get('/api/blogs', async (req, res) => {
   try {
     const Blog = require('./models/Post'); 
@@ -37,13 +35,12 @@ app.get('/api/blogs', async (req, res) => {
   }
 });
 
-// Route to search for blogs by title
 app.get('/api/blogs/search', async (req, res) => {
   try {
-    const Blog = require('./models/Post'); // Import your Blog model
+    const Blog = require('./models/Post'); 
     const { query } = req.query;
     const blogs = await Blog.find({
-      title: { $regex: new RegExp(query, 'i') }, // Case-insensitive search
+      title: { $regex: new RegExp(query, 'i') }, 
     });
     res.json(blogs);
   } catch (error) {
@@ -52,7 +49,18 @@ app.get('/api/blogs/search', async (req, res) => {
   }
 });
 
-// Route to fetch a specific blog post by ID
+app.get('/api/blogs/user/:email', async (req, res) => {
+  try {
+    const Blog = require('./models/Post');
+    const { email } = req.params;
+    const posts = await Blog.find({ studentEmail: email });
+    res.json(posts);
+  } catch (error) {
+    console.error('Error fetching posts by user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.get('/api/blogs/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -66,6 +74,25 @@ app.get('/api/blogs/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching blog:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.delete('/api/delete/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const Blog = require('./models/Post');
+    const deletedPost = await Blog.findByIdAndDelete(id);
+
+    if (!deletedPost) {
+
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    res.status(200).json({ message: 'Post deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 

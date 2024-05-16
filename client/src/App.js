@@ -54,7 +54,7 @@ function App() {
   
 
   useEffect(() => {
-    handleSearch(); // Trigger search when query changes
+    handleSearch(); 
   }, [query]); 
 
   return (
@@ -74,6 +74,7 @@ function App() {
             <Route path="/About" element={<About />} />
             <Route path="/YourPosts" element={<YourPosts />} />
             <Route path="/CreatePost" element={<CreatePost />} />
+            <Route path="/CreatePost/:id" element={<CreatePost />} />
             <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/profile" element={<Profile />} />
           </Routes>

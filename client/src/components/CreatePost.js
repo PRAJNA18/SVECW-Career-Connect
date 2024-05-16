@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "./CreatePost.css";
 
 export default function CreatePost() {
+  const { id } = useParams();
   const [studentEmail, setStudentEmail] = useState("");
   const [studentName, setStudentName] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -30,6 +31,35 @@ export default function CreatePost() {
     }
   }, [companyName, year, jobType]);
 
+  useEffect(() => {
+    if (id) {
+      // Fetch existing post data based on ID
+      fetchPostData();
+    }
+  }, [id]);
+
+  async function fetchPostData() {
+    try {
+      const response = await fetch(`http://localhost:8080/api/blogs/${id}`);
+      if (response.ok) {
+        const data = await response.json();
+        // Populate form fields with existing post data
+        setStudentName(data.studentName);
+        setCompanyName(data.companyName);
+        setYear(data.year);
+        setJobType(data.jobType);
+        setSummary(data.summary);
+        setContent(data.content);
+        setTitle(data.title);
+      } else {
+        console.error('Failed to fetch post data');
+      }
+    } catch (error) {
+      console.error('Error fetching post data:', error);
+    }
+  }
+
+
   async function createNewPost(ev) {
     ev.preventDefault();
 
@@ -50,14 +80,29 @@ export default function CreatePost() {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(postData),
-        credentials: "include",
-      });
+      let response;
+      if (id) {
+        // If editing an existing post, send PUT request
+        response = await fetch(`http://localhost:8080/api/blogs/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(postData),
+          credentials: 'include',
+        });
+      } else {
+        // If creating a new post, send POST request
+        response = await fetch('http://localhost:8080/api/posts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(postData),
+          credentials: 'include',
+        });
+      }
+
 
       if (response.ok) {
         setRedirect(true);
@@ -142,7 +187,7 @@ export default function CreatePost() {
           />
         </div>
         <button type="submit" className="blog-button">
-          Create post
+          {id ? 'Update post' : 'Create post'}
         </button>
       </form>
     </div>
