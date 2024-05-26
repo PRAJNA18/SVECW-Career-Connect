@@ -27,21 +27,21 @@ const BlogPost = () => {
   }, [id]);
 
   if (!blog) {
-    return <div>Loading...</div>;
+    return <div className="text-center py-8">Loading...</div>;
   }
 
   return (
-    <div className="blog-post">
-      <h1>{blog.title || 'Untitled'}</h1>
-      <p className="author">By {blog.author}</p>
-      <p className="date">{new Date(blog.createdAt).toDateString()}</p>
-      <div
-        className="content"
-        dangerouslySetInnerHTML={{ __html: blog.content }}
-      />
+    <div className="container mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto bg-white p-8">
+        <h1 className="text-4xl font-bold mb-6 text-center">{blog.title || 'Untitled'}</h1>
+        <div className="text-center mb-8">
+          <p className="text-gray-600 mb-2">By {blog.studentName}</p>
+          <p className="text-gray-500">{new Date(blog.createdAt).toDateString()}</p>
+        </div>
+        <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: blog.content }} />
+      </div>
     </div>
   );
 };
 
 export default BlogPost;
-

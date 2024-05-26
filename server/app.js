@@ -16,7 +16,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 app.use(morgan('dev'));
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 const userRoutes = require('./routes/auth');
 const postRoutes = require('./routes/posts');

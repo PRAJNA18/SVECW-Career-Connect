@@ -30,7 +30,7 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  title: { // Define 'title' field in schema
+  title: {
     type: String,
     required: true
   },

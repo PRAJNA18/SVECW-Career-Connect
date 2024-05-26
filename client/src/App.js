@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import About from './components/About';
@@ -10,7 +10,6 @@ import BlogPost from './components/BlogPost';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
 import RegistrationPage from './components/RegistrationPage';
-import './App.css';
 
 function App() {
   const [query, setQuery] = useState("");
@@ -51,36 +50,49 @@ function App() {
       console.error('Error searching blogs:', error);
     }
   };
-  
 
   useEffect(() => {
-    handleSearch(); 
-  }, [query]); 
+    handleSearch();
+  }, [query]);
 
   return (
     <Router>
-      <div className="app-container">
-        <Navbar handleInputChange={handleInputChange} query={query} />
-
-        <div className="content">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegistrationPage />} />
-            <Route
-              path="/Home"
-              element={<Home blogs={blogs} fetchBlogs={fetchBlogs} query={query} />}
-            />
-            <Route path="/About" element={<About />} />
-            <Route path="/YourPosts" element={<YourPosts />} />
-            <Route path="/CreatePost" element={<CreatePost />} />
-            <Route path="/CreatePost/:id" element={<CreatePost />} />
-            <Route path="/blog/:id" element={<BlogPost />} />
-            <Route path="/profile" element={<Profile />} />
-          </Routes>
-        </div>
-      </div>
+      <AppContent
+        query={query}
+        blogs={blogs}
+        handleInputChange={handleInputChange}
+        fetchBlogs={fetchBlogs}
+      />
     </Router>
+  );
+}
+
+function AppContent({ query, blogs, handleInputChange, fetchBlogs }) {
+  const currentLocation = useLocation(); // Renamed from `location` to `currentLocation`
+
+  return (
+    <div className="app-container">
+      {/* Conditionally render the Navbar */}
+      {currentLocation.pathname !== '/' && currentLocation.pathname !== '/home' && <Navbar />}
+      
+      <div className="content">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegistrationPage />} />
+          <Route
+            path="/home"
+            element={<Home blogs={blogs} query={query} handleInputChange={handleInputChange} />}
+          />
+          <Route path="/About" element={<About />} />
+          <Route path="/YourPosts" element={<YourPosts />} />
+          <Route path="/CreatePost" element={<CreatePost />} />
+          <Route path="/CreatePost/:id" element={<CreatePost />} />
+          <Route path="/blog/:id" element={<BlogPost />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
+      </div>
+    </div>
   );
 }
 
