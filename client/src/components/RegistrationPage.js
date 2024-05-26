@@ -17,7 +17,7 @@ const RegistrationPage = () => {
             });
 
             console.log(response.data);
-            navigate('/login');
+            navigate('/Home');
         } catch (error) {
             console.error(error);
         }
