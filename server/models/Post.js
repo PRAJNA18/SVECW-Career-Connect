@@ -40,7 +40,6 @@ const postSchema = new mongoose.Schema({
   }
 });
 
-// Set 'title' field before saving the document
 postSchema.pre('save', function(next) {
   const { companyName, year, jobType } = this;
   this.title = `${companyName} ${year} ${jobType}`;

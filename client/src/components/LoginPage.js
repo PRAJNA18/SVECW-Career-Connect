@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -16,9 +16,13 @@ const LoginPage = () => {
                 password
             });
 
-            console.log(response.data);
-            localStorage.setItem('userEmail', email);
-            navigate('/Home');
+            if (response.data.user) {
+                localStorage.setItem('userEmail', response.data.user.email);
+                localStorage.setItem('userName', response.data.user.name);
+                navigate('/');
+            } else {
+                console.error('Invalid response structure:', response.data);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -55,6 +59,9 @@ const LoginPage = () => {
             >
                 Login
             </button>
+            <div className="mt-4 text-center">
+                <Link to="/forgot-password" className="text-blue-500 hover:underline">Forgot Password?</Link>
+            </div>
         </form>
     );
 };

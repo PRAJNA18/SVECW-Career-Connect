@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 const BlogPost = () => {
   const { id } = useParams();
@@ -35,7 +35,9 @@ const BlogPost = () => {
       <div className="max-w-4xl mx-auto bg-white p-8">
         <h1 className="text-4xl font-bold mb-6 text-center">{blog.title || 'Untitled'}</h1>
         <div className="text-center mb-8">
-          <p className="text-gray-600 mb-2">By {blog.studentName}</p>
+          <Link to={`/profile/${blog.studentEmail}`} className="text-gray-600 mb-2 font-bold">
+            By {blog.studentName}
+          </Link>
           <p className="text-gray-500">{new Date(blog.createdAt).toDateString()}</p>
         </div>
         <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: blog.content }} />

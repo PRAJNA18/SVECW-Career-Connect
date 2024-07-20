@@ -3,7 +3,7 @@ import { Navigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-export default function CreatePost() {
+const CreatePost = ({ onNewPost }) => {
   const { id } = useParams();
   const [studentEmail, setStudentEmail] = useState("");
   const [studentName, setStudentName] = useState("");
@@ -17,9 +17,9 @@ export default function CreatePost() {
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
-    if (email) {
-      setStudentEmail(email);
-    }
+    const name = localStorage.getItem("userName");
+    setStudentName(name);
+    setStudentEmail(email);
   }, []);
 
   useEffect(() => {
@@ -40,7 +40,6 @@ export default function CreatePost() {
       const response = await fetch(`http://localhost:8080/api/blogs/${id}`);
       if (response.ok) {
         const data = await response.json();
-        setStudentName(data.studentName);
         setCompanyName(data.companyName);
         setYear(data.year);
         setJobType(data.jobType);
@@ -48,17 +47,21 @@ export default function CreatePost() {
         setContent(data.content);
         setTitle(data.title);
       } else {
-        console.error('Failed to fetch post data');
+        console.error("Failed to fetch post data");
       }
     } catch (error) {
-      console.error('Error fetching post data:', error);
+      console.error("Error fetching post data:", error);
     }
   }
 
   async function createNewPost(ev) {
     ev.preventDefault();
+    if (!studentEmail || !studentName) {
+      alert("Please login to create a post");
+      setRedirect(true);
+    }
 
-    if (!studentName || !companyName || !year || !jobType || !summary || !content) {
+    if (!companyName || !year || !jobType || !summary || !content) {
       alert("Please fill in all required fields.");
       return;
     }
@@ -77,35 +80,40 @@ export default function CreatePost() {
     try {
       let response;
       if (id) {
-        response = await fetch(`http://localhost:8080/api/blogs/${id}`, {
-          method: 'PUT',
+        response = await fetch(`http://localhost:8080/api/update/${id}`, {
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(postData),
-          credentials: 'include',
+          credentials: "include",
         });
       } else {
-        response = await fetch('http://localhost:8080/api/posts', {
-          method: 'POST',
+        response = await fetch("http://localhost:8080/api/posts", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(postData),
-          credentials: 'include',
+          credentials: "include",
         });
       }
 
       if (response.ok) {
+        if (onNewPost) {
+          onNewPost();
+        }
         setRedirect(true);
+      } else {
+        console.error("Failed to create or update post");
       }
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error creating or updating post:", error);
     }
   }
 
   if (redirect) {
-    return <Navigate to="/Home" />;
+    return <Navigate to="/" />;
   }
 
   const handleContentChange = (htmlValue) => {
@@ -124,80 +132,73 @@ export default function CreatePost() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <form onSubmit={createNewPost} className="max-w-4xl mx-auto">
-    <div className="mb-6">
-      <h2 className="text-2xl font-semibold mb-4 text-center text-blue-600">{id ? 'Edit Post' : 'Create Post'}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <h1 className="text-center">Sign into your account to create a post</h1>
+      <form onSubmit={createNewPost} className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold mb-4 text-center text-blue-600">
+            {id ? "Edit Post" : "Create Post"}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <input
+              type="text"
+              placeholder="Company Name *"
+              value={companyName}
+              required
+              onChange={(ev) => setCompanyName(ev.target.value)}
+              className="form-input border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <input
+              type="number"
+              placeholder="Year *"
+              value={year}
+              required
+              onChange={(ev) => setYear(ev.target.value)}
+              className="form-input border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <select
+              value={jobType}
+              onChange={(ev) => setJobType(ev.target.value)}
+              className="form-input border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Select Job Type *</option>
+              <option value="internship">Internship</option>
+              <option value="fulltime">Full Time</option>
+            </select>
+          </div>
+        </div>
         <input
           type="text"
-          placeholder="Student Name *"
-          value={studentName}
-          onChange={(ev) => setStudentName(ev.target.value)}
+          placeholder="Summary *"
+          value={summary}
           required
-          style={{ width: '100%', padding: '0.5rem', fontSize: '1rem', border: '1px solid black' }} // Inline style for input
+          onChange={(ev) => setSummary(ev.target.value)}
+          className="form-input border border-gray-300 rounded-lg p-2 mb-6 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
-        <input
-          type="text"
-          placeholder="Company Name *"
-          value={companyName}
-          onChange={(ev) => setCompanyName(ev.target.value)}
-          required
-          style={{ width: '100%', padding: '0.5rem', fontSize: '1rem', border: '1px solid black' }} // Inline style for input
-        />
-        <input
-          type="number"
-          placeholder="Year *"
-          value={year}
-          onChange={(ev) => setYear(ev.target.value)}
-          required
-          style={{ width: '100%', padding: '0.5rem', fontSize: '1rem', border: '1px solid black' }} // Inline style for input
-        />
-        <select
-            value={jobType}
-            onChange={(ev) => setJobType(ev.target.value)}
-            required
+        <div className="content mb-6">
+          <ReactQuill
             style={{
-              width: '100%',
-              padding: '0.5rem',
-              fontSize: '1rem',
-              border: '1px solid black',
-              color: '#aaa', // Set color of placeholder text
+              width: "100%",
+              fontSize: "1rem",
+              border: "1px solid gray",
+              borderRadius: "8px",
             }}
-          >
-            <option value="" style={{ color: '#aaa' }}>Select Job Type *</option>
-            <option value="internship">Internship</option>
-            <option value="fulltime">Full Time</option>
-          </select>
-      </div>
+            value={content}
+            theme="snow"
+            required
+            onChange={handleContentChange}
+            modules={modules}
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          {id ? "Update Post" : "Create Post"}
+        </button>
+      </form>
     </div>
-    <input
-      type="text"
-      placeholder="Summary *"
-      value={summary}
-      onChange={(ev) => setSummary(ev.target.value)}
-      className="blog-input mb-6"
-      required
-      style={{ width: '100%', padding: '0.5rem', fontSize: '1rem', border: '1px solid black' }} // Inline style for input
-    />
-    <div className="content mb-6">
-      <ReactQuill
-        style={{
-          width: "100%",
-          fontSize: '1rem',
-          border: '1px solid black'
-        }}
-        value={content}
-        theme="snow"
-        onChange={handleContentChange}
-        modules={modules}
-      />
-    </div>
-    <button type="submit" className="blog-button w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-      {id ? 'Update Post' : 'Create Post'}
-    </button>
-  </form>
-</div>
-
-
   );
-}
+};
+
+export default CreatePost;
+

@@ -30,10 +30,8 @@ const YourPosts = () => {
   };
 
   const handleDelete = async (id) => {
-    // Display a confirmation dialog to the user
     const confirmDelete = window.confirm('Are you sure you want to delete this post?');
 
-    // If the user confirms deletion, proceed with deletion
     if (confirmDelete) {
       try {
         const response = await fetch(`http://localhost:8080/api/delete/${id}`, {
@@ -41,7 +39,6 @@ const YourPosts = () => {
         });
 
         if (response.ok) {
-          // Remove the deleted post from the local state
           setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog._id !== id));
           console.log('Post deleted successfully');
         } else {

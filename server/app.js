@@ -8,27 +8,43 @@ const app = express();
 
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
-  console.log('Connected to MongoDB');
+    console.log('Connected to MongoDB');
 })
 .catch((error) => {
-  console.error('Error connecting to MongoDB:', error);
+    console.error('Error connecting to MongoDB:', error);
 });
 
 app.use(morgan('dev'));
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 const userRoutes = require('./routes/auth');
 const postRoutes = require('./routes/posts');
+const updateRoutes = require('./routes/update');
+const profileRoutes = require('./routes/profile');
 
 app.use('/api/auth', userRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/update', updateRoutes);
+app.use('/api/profile', profileRoutes);
 
 app.get('/api/blogs', async (req, res) => {
   try {
     const Blog = require('./models/Post'); 
-    const blogs = await Blog.find();
-    res.json(blogs);
+    const { page = 1, limit = 6 } = req.query;
+
+    const blogs = await Blog.find().sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+      
+    const totalBlogs = await Blog.countDocuments();
+
+    res.json({
+      blogs,
+      totalBlogs,
+      totalPages: Math.ceil(totalBlogs / limit),
+      currentPage: Number(page)});
   } catch (error) {
     console.error('Error fetching blogs:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -53,7 +69,7 @@ app.get('/api/blogs/user/:email', async (req, res) => {
   try {
     const Blog = require('./models/Post');
     const { email } = req.params;
-    const posts = await Blog.find({ studentEmail: email });
+    const posts = await Blog.find({ studentEmail: email }).sort({ createdAt: -1 });
     res.json(posts);
   } catch (error) {
     console.error('Error fetching posts by user:', error);

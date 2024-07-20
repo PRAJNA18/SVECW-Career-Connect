@@ -8,11 +8,11 @@ const LandingPage = () => {
     const navigate = useNavigate();
 
     const handleRegisterSuccess = () => {
-        navigate('/home'); 
+        navigate('/'); 
     };
 
     const handleLoginSuccess = () => {
-        navigate('/home'); 
+        navigate('/'); 
     };
 
     const togglePage = () => {
@@ -22,7 +22,6 @@ const LandingPage = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-6 lg:p-8">
             <div className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3 bg-white p-6 sm:p-8 lg:p-10 rounded-lg shadow-md">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-6">Welcome to My App</h1>
                 {isLoginPage ? (
                     <>
                         <LoginPage onSuccess={handleLoginSuccess} />
